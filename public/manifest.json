@@ -1,0 +1,10 @@
+{
+  "name": "Formit",
+  "short_name": "Formit",
+  "description": "따뜻한 설문을 빠르게 만들고 공유하세요",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf7f2",
+  "theme_color": "#e03e6c",
+  "lang": "ko"
+}

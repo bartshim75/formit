@@ -1,24 +1,58 @@
-# Build output
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Production / analyze
 dist/
+*.tsbuildinfo
+
+# Vercel
 .vercel/
+
+# Turbopack / tooling caches
+.turbo/
+.cache/
+.eslintcache
+
+# Env (로컬·배포 비밀값, *.example 만 커밋)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Supabase CLI (로컬)
+supabase/.branches/
+supabase/.temp/
+
+# Test & E2E
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# Logs & debug
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Editor
+# Editor (공유 설정을 커밋하려면 아래 .vscode/ 줄 제거)
 .vscode/
 .idea/
 *.swp
+*.swo
 
-# Logs
-*.log
-
-# Local env (never commit)
-.env
-.env.local
-
-# Design bundle (source, not deployed)
+# Design bundle (원본, 배포 제외)
 design-bundle/
-.vercel
-.env*.local
+
+# Sentry (빌드 시 생성)
+.sentry-native/
