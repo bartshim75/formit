@@ -1,0 +1,4 @@
+design-bundle/
+.github/
+*.md
+!README.md
