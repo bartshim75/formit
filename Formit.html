@@ -456,9 +456,8 @@ const __cfg = window.__FORMIT_CONFIG || {};
 const __rawUrl = __cfg.supabaseUrl || '';
 const __rawKey = __cfg.supabaseAnonKey || '';
 const CONFIGURED =
-  __rawUrl && __rawKey &&
-  !__rawUrl.includes('__SUPABASE_URL__') &&
-  !__rawKey.includes('__SUPABASE_ANON_KEY__');
+  /^https:\/\/.+\.supabase\.co$/.test(__rawUrl) &&
+  __rawKey.length > 40;
 
 const sb = CONFIGURED && window.supabase
   ? window.supabase.createClient(__rawUrl, __rawKey, {
