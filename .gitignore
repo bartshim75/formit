@@ -20,3 +20,5 @@ Thumbs.db
 
 # Design bundle (source, not deployed)
 design-bundle/
+.vercel
+.env*.local

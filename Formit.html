@@ -733,14 +733,17 @@ const StatusDot = ({ status }) => {
 
 const Sidebar = ({ activeView, setActiveView, surveys, user, onSignOut }) => {
   const items = [
-    { id: 'dashboard', icon: 'home', label: '홈' },
+    { id: 'landing', icon: 'home', label: '홈' },
+    { id: 'dashboard', icon: 'inbox', label: '대시보드' },
     { id: 'templates', icon: 'grid', label: '템플릿' },
     { id: 'results', icon: 'chart', label: '결과 분석' },
   ];
   const recent = surveys.slice(0, 4);
   return (
     <aside className="sidebar">
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 10px 20px 10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 10px 20px 10px', cursor: 'pointer' }}
+        onClick={() => setActiveView({ view: 'landing' })}
+        title="마케팅 홈으로">
         <div style={{ color: 'var(--accent)' }}><Icon name="logo" size={32} /></div>
         <div>
           <div style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Formit</div>
@@ -930,9 +933,16 @@ Object.assign(window, { Avatar, StatusDot, Sidebar, TopBar, EmptyState, BarChart
 /* ==== src/landing.jsx ==== */
 // Landing page
 
-const Landing = ({ onEnter, onSignIn, onDemo }) => {
+const Landing = ({ onSignIn, onDemo, onNavTemplates, onOpenDashboard, signedIn }) => {
   const [hover, setHover] = React.useState(null);
-  const handleStart = onSignIn || onEnter;
+  const scrollTo = (id) => () => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const primaryCta = () => {
+    if (signedIn && onOpenDashboard) onOpenDashboard();
+    else if (onSignIn) onSignIn();
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', overflow: 'hidden' }}>
@@ -941,18 +951,26 @@ const Landing = ({ onEnter, onSignIn, onDemo }) => {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '20px 40px', maxWidth: 1280, margin: '0 auto'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
           <div style={{ color: 'var(--accent)' }}><Icon name="logo" size={28} /></div>
           <div style={{ fontWeight: 800, fontSize: 19, letterSpacing: '-0.02em' }}>Formit</div>
         </div>
-        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          <button className="btn ghost" onClick={handleStart}>기능</button>
-          <button className="btn ghost" onClick={handleStart}>템플릿</button>
-          <button className="btn ghost" onClick={handleStart}>요금제</button>
-          <button className="btn ghost" onClick={handleStart}>
-            <Icon name="login" size={14} /> 로그인
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <button type="button" className="btn ghost" onClick={scrollTo('landing-features')}>기능</button>
+          <button type="button" className="btn ghost" onClick={onNavTemplates}>템플릿</button>
+          <button type="button" className="btn ghost" onClick={scrollTo('landing-pricing')}>요금제</button>
+          {!signedIn && (
+            <button type="button" className="btn ghost" onClick={onSignIn}>
+              <Icon name="login" size={14} /> 로그인
+            </button>
+          )}
+          <button type="button" className="btn primary" onClick={primaryCta}>
+            {signedIn ? '대시보드로' : '무료로 시작하기'}
           </button>
-          <button className="btn primary" onClick={handleStart}>무료로 시작하기</button>
         </div>
       </nav>
 
@@ -979,11 +997,17 @@ const Landing = ({ onEnter, onSignIn, onDemo }) => {
           한 화면에서 인사이트까지. 비개발자를 위해 처음부터 다시 만든 설문 도구.
         </p>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button className="btn primary lg" onClick={handleStart}>
-            <Icon name="google" size={18} /> Google로 시작하기
-          </button>
+          {!signedIn ? (
+            <button type="button" className="btn primary lg" onClick={onSignIn}>
+              <Icon name="google" size={18} /> Google로 시작하기
+            </button>
+          ) : (
+            <button type="button" className="btn primary lg" onClick={onOpenDashboard}>
+              내 설문 대시보드 <Icon name="chevronRight" size={16} />
+            </button>
+          )}
           {onDemo && (
-            <button className="btn lg" onClick={onDemo}>
+            <button type="button" className="btn lg" onClick={onDemo}>
               <Icon name="play" size={14} /> 데모 둘러보기
             </button>
           )}
@@ -1094,7 +1118,7 @@ const Landing = ({ onEnter, onSignIn, onDemo }) => {
       </section>
 
       {/* Features */}
-      <section style={{ maxWidth: 1180, margin: '80px auto', padding: '0 40px' }}>
+      <section id="landing-features" style={{ maxWidth: 1180, margin: '80px auto', padding: '0 40px', scrollMarginTop: 24 }}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <div className="chip" style={{ marginBottom: 12 }}>핵심 기능</div>
           <h2 style={{ fontSize: 44, fontWeight: 700, letterSpacing: '-0.03em', margin: 0 }}>
@@ -1125,6 +1149,43 @@ const Landing = ({ onEnter, onSignIn, onDemo }) => {
         </div>
       </section>
 
+      {/* Pricing */}
+      <section id="landing-pricing" style={{ maxWidth: 1180, margin: '0 auto 64px', padding: '0 40px', scrollMarginTop: 24 }}>
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div className="chip" style={{ marginBottom: 12 }}>요금제</div>
+          <h2 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-0.03em', margin: 0 }}>
+            팀 규모에 맞게, 부담 없이
+          </h2>
+          <p style={{ fontSize: 15, color: 'var(--ink-3)', marginTop: 10 }}>
+            무료로 시작하고, 응답이 늘면 업그레이드하세요.
+          </p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+          {[
+            { name: 'Free', price: '₩0', desc: '개인·소규모 팀', feat: ['월 100건 응답', '템플릿 전체', '기본 분석'] },
+            { name: 'Pro', price: '₩29,000', desc: '/ 팀 · 월', feat: ['무제한 응답', '브랜드 테마', '내보내기·API'], highlight: true },
+            { name: 'Business', price: '별도 문의', desc: '엔터프라이즈', feat: ['SSO', '전담 지원', '맞춤 계약'] },
+          ].map((p) => (
+            <div key={p.name} className="card" style={{
+              padding: 28,
+              border: p.highlight ? '2px solid var(--accent)' : '1px solid var(--border)',
+              boxShadow: p.highlight ? 'var(--shadow-pop)' : 'var(--shadow-sm)',
+            }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-3)', marginBottom: 6 }}>{p.name}</div>
+              <div style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.03em' }}>{p.price}</div>
+              <div style={{ fontSize: 13, color: 'var(--ink-3)', marginBottom: 18 }}>{p.desc}</div>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.7 }}>
+                {p.feat.map((line) => <li key={line}>{line}</li>)}
+              </ul>
+              <button type="button" className={`btn ${p.highlight ? 'primary' : ''}`} style={{ width: '100%', marginTop: 20, justifyContent: 'center' }}
+                onClick={p.name === 'Business' ? () => { window.location.href = 'mailto:support@formit.app?subject=Formit%20Business%20문의'; } : primaryCta}>
+                {p.name === 'Business' ? '영업팀 문의' : (signedIn ? '대시보드로' : '시작하기')}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* CTA */}
       <section style={{ maxWidth: 1180, margin: '0 auto 100px', padding: '0 40px' }}>
         <div style={{
@@ -1143,9 +1204,9 @@ const Landing = ({ onEnter, onSignIn, onDemo }) => {
             <p style={{ fontSize: 18, opacity: 0.9, marginBottom: 32, maxWidth: 520, margin: '0 auto 32px' }}>
               신용카드 없이 시작. 월 100개 응답까지 평생 무료.
             </p>
-            <button className="btn lg" onClick={handleStart}
+            <button type="button" className="btn lg" onClick={primaryCta}
               style={{ background: 'white', color: 'var(--accent-ink)', fontWeight: 700 }}>
-              <Icon name="google" size={16} /> Google로 시작하기
+              {signedIn ? '대시보드 열기' : (<><Icon name="google" size={16} /> Google로 시작하기</>)}
             </button>
           </div>
         </div>
@@ -2671,12 +2732,102 @@ window.Respondent = Respondent;
 /* ==== src/results.jsx ==== */
 // Results / analytics dashboard
 
+const formatSubmittedAgo = (iso) => {
+  try {
+    const d = new Date(iso);
+    const diffMin = (Date.now() - d.getTime()) / 60000;
+    if (diffMin < 2) return '방금 전';
+    if (diffMin < 60) return `${Math.floor(diffMin)}분 전`;
+    if (diffMin < 1440) return `${Math.floor(diffMin / 60)}시간 전`;
+    return d.toLocaleDateString('ko-KR');
+  } catch (_) { return '—'; }
+};
+
+const buildTimelineBuckets = (rows, days = 14) => {
+  const buckets = Array(days).fill(0);
+  const now = Date.now();
+  for (const r of rows) {
+    const t = new Date(r.submitted_at).getTime();
+    const diffDays = Math.floor((now - t) / 86400000);
+    if (diffDays >= 0 && diffDays < days) buckets[days - 1 - diffDays]++;
+  }
+  return buckets;
+};
+
+const aggregateResponsesForSurvey = (survey, rows) => {
+  const agg = {};
+  for (const sec of survey.sections || []) {
+    for (const q of sec.questions || []) {
+      if (q.type === 'nps') {
+        const scores = [];
+        for (const r of rows) {
+          const v = r.answers?.[q.id];
+          if (typeof v === 'number') scores.push(v);
+        }
+        if (scores.length) agg[q.id] = { scores };
+      } else if (q.type === 'single' || q.type === 'likert') {
+        const c = {};
+        for (const r of rows) {
+          const v = r.answers?.[q.id];
+          if (v != null && v !== '') {
+            const k = String(v);
+            c[k] = (c[k] || 0) + 1;
+          }
+        }
+        if (Object.keys(c).length) agg[q.id] = c;
+      } else if (q.type === 'multi') {
+        const c = {};
+        for (const r of rows) {
+          const arr = r.answers?.[q.id];
+          if (Array.isArray(arr)) {
+            for (const opt of arr) c[opt] = (c[opt] || 0) + 1;
+          }
+        }
+        if (Object.keys(c).length) agg[q.id] = c;
+      } else if (q.type === 'rating') {
+        const c = {};
+        for (const r of rows) {
+          const v = r.answers?.[q.id];
+          if (typeof v === 'number' && v >= 1 && v <= 5) {
+            const k = `${v}점`;
+            c[k] = (c[k] || 0) + 1;
+          }
+        }
+        if (Object.keys(c).length) agg[q.id] = c;
+      } else if (q.type === 'long') {
+        const list = [];
+        for (const r of rows) {
+          const t = r.answers?.[q.id];
+          if (typeof t === 'string' && t.trim()) {
+            list.push({
+              id: r.id,
+              text: t.trim(),
+              author: '익명',
+              time: formatSubmittedAgo(r.submitted_at),
+              sentiment: 'neutral'
+            });
+          }
+        }
+        if (list.length) agg[q.id] = list;
+      }
+    }
+  }
+  return agg;
+};
+
 const NPSGauge = ({ scores }) => {
   // Calculate NPS: % promoters (9-10) - % detractors (0-6)
+  const total = scores.length;
+  if (!total) {
+    return (
+      <div style={{ padding: 16, background: 'var(--bg-soft)', borderRadius: 12, fontSize: 13, color: 'var(--ink-3)' }}>
+        아직 NPS 응답이 없어요.
+      </div>
+    );
+  }
   const promoters = scores.filter(s => s >= 9).length;
   const detractors = scores.filter(s => s <= 6).length;
   const passives = scores.filter(s => s === 7 || s === 8).length;
-  const total = scores.length;
   const npsScore = Math.round(((promoters - detractors) / total) * 100);
   const promoterPct = Math.round((promoters / total) * 100);
   const passivePct = Math.round((passives / total) * 100);
@@ -2718,7 +2869,7 @@ const ResponsesTimeline = ({ data }) => {
     d.setDate(d.getDate() - (data.length - 1 - i));
     return `${d.getMonth()+1}/${d.getDate()}`;
   });
-  const max = Math.max(...data);
+  const max = Math.max(1, ...data);
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 140, marginBottom: 8 }}>
@@ -2743,53 +2894,66 @@ const ResponsesTimeline = ({ data }) => {
   );
 };
 
-const QuestionResultCard = ({ q, data }) => {
-  const typeMeta = QUESTION_TYPES[q.type];
+const QuestionResultCard = ({ q, data, showDemoExtras }) => {
+  const typeMeta = QUESTION_TYPES[q.type] || { icon: 'textShort', label: '문항' };
   let body = null;
 
   if (q.type === 'nps') {
-    body = <NPSGauge scores={data.scores} />;
-  } else if (q.type === 'single' || q.type === 'multi' || q.type === 'likert') {
-    const total = Object.values(data).reduce((a, b) => a + b, 0);
+    body = <NPSGauge scores={(data && data.scores) ? data.scores : []} />;
+  } else if (q.type === 'single' || q.type === 'multi' || q.type === 'likert' || q.type === 'rating') {
+    const total = data && typeof data === 'object' && !Array.isArray(data) ? Object.values(data).reduce((a, b) => a + b, 0) : 0;
     const palette = ['var(--accent)', 'var(--purple)', 'var(--blue)', 'var(--ok)', '#F5BC3D', '#E8574D'];
-    body = (
+    body = total ? (
       <div>
         {Object.entries(data).map(([label, count], i) => (
           <PctBar key={label} label={label} value={count} total={total} color={palette[i % palette.length]} />
         ))}
         <div style={{ marginTop: 10, fontSize: 11, color: 'var(--ink-4)' }}>총 {total.toLocaleString()}개 응답</div>
       </div>
+    ) : (
+      <div style={{ fontSize: 13, color: 'var(--ink-3)' }}>이 문항에 대한 응답이 아직 없어요.</div>
     );
   } else if (q.type === 'long') {
+    const rows = Array.isArray(data) ? data : [];
     body = (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
-          {[
-            { label: '긍정', pct: 54, color: 'var(--ok)' },
-            { label: '중립', pct: 32, color: 'var(--ink-4)' },
-            { label: '부정', pct: 14, color: 'var(--bad)' }
-          ].map(s => (
-            <div key={s.label} className="chip" style={{ fontSize: 11, background: s.color + '18', color: s.color, border: 'none' }}>
-              {s.label} {s.pct}%
+        {showDemoExtras && rows.length > 0 && (
+          <>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+              {[
+                { label: '긍정', pct: 54, color: 'var(--ok)' },
+                { label: '중립', pct: 32, color: 'var(--ink-4)' },
+                { label: '부정', pct: 14, color: 'var(--bad)' }
+              ].map(s => (
+                <div key={s.label} className="chip" style={{ fontSize: 11, background: s.color + '18', color: s.color, border: 'none' }}>
+                  {s.label} {s.pct}%
+                </div>
+              ))}
+              <div className="chip accent" style={{ fontSize: 11, marginLeft: 'auto' }}>
+                <Icon name="sparkles" size={10} /> AI 요약
+              </div>
             </div>
-          ))}
-          <div className="chip accent" style={{ fontSize: 11, marginLeft: 'auto' }}>
-            <Icon name="sparkles" size={10} /> AI 요약
-          </div>
-        </div>
-        <div style={{ padding: 14, background: 'var(--accent-softer)', borderRadius: 10, fontSize: 12, color: 'var(--accent-ink)', lineHeight: 1.55 }}>
-          💡 <strong>AI 요약:</strong> 대부분의 응답자는 제품 품질과 패키지에 만족을 표했습니다. 개선 요청은 주로 <strong>배송 속도(23건)</strong>, <strong>가격 부담(18건)</strong>, <strong>사이즈 옵션(11건)</strong>에 집중되어 있습니다.
-        </div>
-        {data.map(r => (
-          <div key={r.id} style={{
-            padding: 14, background: 'var(--bg-soft)', borderRadius: 12,
-            borderLeft: `3px solid ${r.sentiment === 'positive' ? 'var(--ok)' : r.sentiment === 'negative' ? 'var(--bad)' : 'var(--ink-4)'}`
-          }}>
-            <div style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.55, marginBottom: 6 }}>"{r.text}"</div>
-            <div style={{ fontSize: 11, color: 'var(--ink-4)' }}>{r.author} · {r.time}</div>
-          </div>
-        ))}
-        <button className="btn sm" style={{ alignSelf: 'flex-start' }}>응답 487개 더보기 ↓</button>
+            <div style={{ padding: 14, background: 'var(--accent-softer)', borderRadius: 10, fontSize: 12, color: 'var(--accent-ink)', lineHeight: 1.55 }}>
+              💡 <strong>AI 요약:</strong> 대부분의 응답자는 제품 품질과 패키지에 만족을 표했습니다. 개선 요청은 주로 <strong>배송 속도(23건)</strong>, <strong>가격 부담(18건)</strong>, <strong>사이즈 옵션(11건)</strong>에 집중되어 있습니다.
+            </div>
+          </>
+        )}
+        {rows.length === 0 ? (
+          <div style={{ fontSize: 13, color: 'var(--ink-3)' }}>이 문항에 대한 텍스트 응답이 아직 없어요.</div>
+        ) : (
+          rows.map(r => (
+            <div key={r.id} style={{
+              padding: 14, background: 'var(--bg-soft)', borderRadius: 12,
+              borderLeft: `3px solid ${r.sentiment === 'positive' ? 'var(--ok)' : r.sentiment === 'negative' ? 'var(--bad)' : 'var(--ink-4)'}`
+            }}>
+              <div style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.55, marginBottom: 6 }}>&quot;{r.text}&quot;</div>
+              <div style={{ fontSize: 11, color: 'var(--ink-4)' }}>{r.author} · {r.time}</div>
+            </div>
+          ))
+        )}
+        {showDemoExtras && rows.length > 0 && (
+          <button className="btn sm" style={{ alignSelf: 'flex-start' }}>응답 더보기 ↓</button>
+        )}
       </div>
     );
   }
@@ -2812,20 +2976,50 @@ const QuestionResultCard = ({ q, data }) => {
   );
 };
 
-const Results = ({ survey, setActiveView }) => {
+const Results = ({ survey, setActiveView, demoMode }) => {
   const [tab, setTab] = React.useState('overview');
+  const [remote, setRemote] = React.useState({ status: 'idle', rows: [], err: null });
 
-  // Build list of all questions in the survey
   const allQuestions = [];
   for (const s of survey.sections) {
     for (const q of s.questions) allQuestions.push(q);
   }
 
+  React.useEffect(() => {
+    let cancel = false;
+    if (demoMode || !api.configured || !survey?.id) {
+      setRemote({ status: 'skipped', rows: [], err: null });
+      return;
+    }
+    setRemote({ status: 'loading', rows: [], err: null });
+    (async () => {
+      try {
+        const rows = await api.listResponses(survey.id);
+        if (!cancel) setRemote({ status: 'ok', rows: rows || [], err: null });
+      } catch (e) {
+        if (!cancel) setRemote({ status: 'error', rows: [], err: e?.message || '응답을 불러오지 못했어요' });
+      }
+    })();
+    return () => { cancel = true; };
+  }, [survey?.id, demoMode]);
+
+  const usingLiveAgg = !demoMode && api.configured && remote.status === 'ok';
+  const liveAgg = usingLiveAgg ? aggregateResponsesForSurvey(survey, remote.rows) : null;
+  const timelineData = demoMode
+    ? RESPONSE_TIMELINE
+    : (usingLiveAgg && remote.rows.length ? buildTimelineBuckets(remote.rows) : Array(14).fill(0));
+
+  const dataForQuestion = (q) => {
+    if (demoMode) return DEMO_RESPONSES[q.id];
+    if (usingLiveAgg) return liveAgg[q.id];
+    return DEMO_RESPONSES[q.id];
+  };
+
   return (
     <div>
       <TopBar
         title={<span>{survey.emoji} {survey.title} <span style={{ fontSize: 14, color: 'var(--ink-3)', fontWeight: 500 }}> · 결과</span></span>}
-        subtitle="실시간으로 업데이트되는 응답 데이터"
+        subtitle={demoMode ? '데모용 샘플 데이터로 표시됩니다' : (usingLiveAgg ? '저장된 실제 응답을 집계합니다' : '실시간으로 업데이트되는 응답 데이터')}
         onBack={() => setActiveView({ view: 'dashboard' })}
         right={
           <>
@@ -2836,13 +3030,30 @@ const Results = ({ survey, setActiveView }) => {
       />
 
       <div style={{ padding: 32, maxWidth: 1280 }}>
+        {!demoMode && api.configured && (
+          <div style={{
+            marginBottom: 16, padding: '12px 16px', borderRadius: 12,
+            background: 'var(--bg-soft)', border: '1px solid var(--border)', fontSize: 13, color: 'var(--ink-2)',
+            lineHeight: 1.5
+          }}>
+            {remote.status === 'loading' && '실제 응답을 불러오는 중…'}
+            {remote.status === 'error' && <>⚠ {remote.err}</>}
+            {usingLiveAgg && remote.rows.length > 0 && (
+              <>실제 제출 응답 <strong>{remote.rows.length.toLocaleString()}건</strong>을 집계했습니다. 문항별 차트·표는 이 데이터를 기준으로 합니다.</>
+            )}
+            {usingLiveAgg && remote.rows.length === 0 && (
+              <>아직 저장된 응답이 없습니다. 설문을 공개한 뒤 응답이 들어오면 이 화면에 반영됩니다.</>
+            )}
+          </div>
+        )}
+
         {/* Hero stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 28 }}>
           {[
-            { label: '총 응답', value: survey.responses.toLocaleString(), delta: '+184 이번 주' },
+            { label: '총 응답', value: (usingLiveAgg ? remote.rows.length : survey.responses).toLocaleString(), delta: demoMode ? '+184 이번 주' : (usingLiveAgg ? '실제 건수' : '+184 이번 주') },
             { label: '완료율', value: `${survey.completionRate}%`, delta: '▲ 2.3% 지난주' },
             { label: '평균 응답 시간', value: survey.avgTime, delta: '▼ 12초' },
-            { label: '마지막 응답', value: '방금 전', delta: '14분 전' },
+            { label: '마지막 응답', value: usingLiveAgg && remote.rows[0] ? formatSubmittedAgo(remote.rows[0].submitted_at) : '방금 전', delta: '14분 전' },
           ].map(s => (
             <div key={s.label} className="card" style={{ padding: 20 }}>
               <div style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 6, fontWeight: 600 }}>{s.label}</div>
@@ -2858,15 +3069,15 @@ const Results = ({ survey, setActiveView }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 2 }}>응답 추이</div>
-                <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>최근 14일</div>
+                <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>최근 14일 {!demoMode && usingLiveAgg && `· 실제 ${remote.rows.length}건 기준`}</div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
-                <button className="btn sm" style={{ background: 'var(--ink)', color: 'white' }}>14일</button>
-                <button className="btn sm">30일</button>
-                <button className="btn sm">전체</button>
+                <button type="button" className="btn sm" style={{ background: 'var(--ink)', color: 'white' }}>14일</button>
+                <button type="button" className="btn sm">30일</button>
+                <button type="button" className="btn sm">전체</button>
               </div>
             </div>
-            <ResponsesTimeline data={RESPONSE_TIMELINE} />
+            <ResponsesTimeline data={timelineData} />
           </div>
 
           <div className="card" style={{ padding: 24 }}>
@@ -2915,9 +3126,18 @@ const Results = ({ survey, setActiveView }) => {
         {tab === 'overview' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {allQuestions.map(q => {
-              const data = DEMO_RESPONSES[q.id];
-              if (!data) return null;
-              return <QuestionResultCard key={q.id} q={q} data={data} />;
+              const raw = dataForQuestion(q);
+              if (q.type === 'long') {
+                return <QuestionResultCard key={q.id} q={q} data={Array.isArray(raw) ? raw : []} showDemoExtras={demoMode} />;
+              }
+              if (q.type === 'nps') {
+                return <QuestionResultCard key={q.id} q={q} data={raw || { scores: [] }} showDemoExtras={demoMode} />;
+              }
+              if (q.type === 'single' || q.type === 'multi' || q.type === 'likert' || q.type === 'rating') {
+                return <QuestionResultCard key={q.id} q={q} data={raw || {}} showDemoExtras={demoMode} />;
+              }
+              if (raw == null) return null;
+              return <QuestionResultCard key={q.id} q={q} data={raw} showDemoExtras={demoMode} />;
             })}
           </div>
         )}
@@ -2936,23 +3156,47 @@ const Results = ({ survey, setActiveView }) => {
               <div>상태</div>
               <div></div>
             </div>
-            {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} style={{
-                display: 'grid', gridTemplateColumns: '40px 1fr 120px 100px 100px 40px',
-                padding: '14px 20px', borderBottom: '1px solid var(--border)',
-                fontSize: 13, alignItems: 'center'
-              }}>
-                <div style={{ color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>{(survey.responses - i).toString().padStart(4, '0')}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <Avatar name={['김','이','박','최','정'][i%5]} color={['#E8602C','#8C63C9','#4A7BC6','#3E8F5E','#D99C2A'][i%5]} size={28} />
-                  <span style={{ color: 'var(--ink-2)' }}>익명 응답자</span>
+            {usingLiveAgg && remote.rows.length > 0 ? (
+              remote.rows.slice(0, 50).map((row, i) => (
+                <div key={row.id} style={{
+                  display: 'grid', gridTemplateColumns: '40px 1fr 120px 100px 100px 40px',
+                  padding: '14px 20px', borderBottom: '1px solid var(--border)',
+                  fontSize: 13, alignItems: 'center'
+                }}>
+                  <div style={{ color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>{(remote.rows.length - i).toString().padStart(4, '0')}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Avatar name="익" color="#8C63C9" size={28} />
+                    <span style={{ color: 'var(--ink-2)' }}>익명 응답자</span>
+                  </div>
+                  <div style={{ color: 'var(--ink-3)', fontSize: 12 }}>{formatSubmittedAgo(row.submitted_at)}</div>
+                  <div style={{ color: 'var(--ink-3)', fontSize: 12 }}>—</div>
+                  <div><StatusDot status="live" /></div>
+                  <button type="button" style={{ color: 'var(--ink-4)' }}><Icon name="chevronRight" size={14} /></button>
                 </div>
-                <div style={{ color: 'var(--ink-3)', fontSize: 12 }}>{i === 0 ? '방금 전' : `${i*17}분 전`}</div>
-                <div style={{ color: 'var(--ink-3)', fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>2분 {10+i*3}초</div>
-                <div><StatusDot status={i%6 === 5 ? 'draft' : 'live'} /></div>
-                <button style={{ color: 'var(--ink-4)' }}><Icon name="chevronRight" size={14} /></button>
+              ))
+            ) : demoMode ? (
+              Array.from({ length: Math.min(10, Math.max(1, survey.responses)) }).map((_, i) => (
+                <div key={i} style={{
+                  display: 'grid', gridTemplateColumns: '40px 1fr 120px 100px 100px 40px',
+                  padding: '14px 20px', borderBottom: '1px solid var(--border)',
+                  fontSize: 13, alignItems: 'center'
+                }}>
+                  <div style={{ color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>{(survey.responses - i).toString().padStart(4, '0')}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Avatar name={['김','이','박','최','정'][i%5]} color={['#E8602C','#8C63C9','#4A7BC6','#3E8F5E','#D99C2A'][i%5]} size={28} />
+                    <span style={{ color: 'var(--ink-2)' }}>익명 응답자</span>
+                  </div>
+                  <div style={{ color: 'var(--ink-3)', fontSize: 12 }}>{i === 0 ? '방금 전' : `${i*17}분 전`}</div>
+                  <div style={{ color: 'var(--ink-3)', fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>2분 {10+i*3}초</div>
+                  <div><StatusDot status={i%6 === 5 ? 'draft' : 'live'} /></div>
+                  <button type="button" style={{ color: 'var(--ink-4)' }}><Icon name="chevronRight" size={14} /></button>
+                </div>
+              ))
+            ) : (
+              <div style={{ padding: 32, textAlign: 'center', fontSize: 14, color: 'var(--ink-3)' }}>
+                표시할 실제 응답 행이 없습니다. 응답이 쌓이면 여기에 목록이 나타납니다.
               </div>
-            ))}
+            )}
           </div>
         )}
 
@@ -3378,13 +3622,19 @@ const App = () => {
     return <CenterMsg emoji="✨" title="Formit" subtitle="잠시만요…" />;
   }
 
-  // Landing (signed-out, or demo mode awaiting "데모 둘러보기")
-  if (authState.status === 'signed-out' && activeView.view === 'landing') {
+  // 마케팅 랜딩 (로그인 여부와 무관 — 사이드바 「홈」으로 복귀)
+  if (activeView.view === 'landing') {
     return (
       <>
         <Landing
+          signedIn={authState.status === 'signed-in'}
           onSignIn={handleSignIn}
           onDemo={demoMode ? (() => setActiveView({ view: 'dashboard' })) : null}
+          onNavTemplates={() => {
+            if (demoMode || authState.status === 'signed-in') setActiveView({ view: 'templates' });
+            else handleSignIn();
+          }}
+          onOpenDashboard={() => setActiveView({ view: 'dashboard' })}
         />
         {demoMode && <DemoBanner />}
         {tweaksOpen && <TweaksPanel tweaks={tweaks} setTweaks={setTweaks} onClose={() => setTweaksOpen(false)} />}
@@ -3435,7 +3685,7 @@ const App = () => {
     case 'results': {
       const targetSurvey = currentSurvey || surveys.find(s => s.status === 'live') || surveys[0];
       content = targetSurvey
-        ? <Results survey={targetSurvey} setActiveView={setActiveView} />
+        ? <Results survey={targetSurvey} setActiveView={setActiveView} demoMode={demoMode} />
         : <EmptyState emoji="📊" title="아직 분석할 설문이 없어요"
             desc="먼저 설문을 만들고 공개해보세요"
             action={<button className="btn primary" onClick={() => setActiveView({ view: 'builder', surveyId: 'new' })}>설문 만들기</button>} />;
@@ -3454,11 +3704,12 @@ const App = () => {
       </div>
       <div className="mobile-nav">
         {[
-          { id: 'dashboard', icon: 'home', label: '홈' },
+          { id: 'landing', icon: 'home', label: '홈' },
+          { id: 'dashboard', icon: 'inbox', label: '보드' },
           { id: 'templates', icon: 'grid', label: '템플릿' },
           { id: 'results', icon: 'chart', label: '분석' },
         ].map(item => (
-          <button key={item.id} onClick={() => setActiveView({ view: item.id })}
+          <button key={item.id} type="button" onClick={() => setActiveView({ view: item.id })}
             className={activeView.view === item.id ? 'active' : ''}>
             <Icon name={item.icon} size={18} />
             <span>{item.label}</span>
