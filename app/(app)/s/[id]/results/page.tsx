@@ -55,22 +55,56 @@ export default function Page() {
 
   return (
     <main className="grid gap-4">
-      <section className="border-border bg-bg-elev rounded-2xl border p-6 shadow-sm">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-lg font-extrabold tracking-tight">결과</h1>
-            <p className="text-ink-2 mt-1 text-sm">
-              응답 수와 객관식(단일) 문항 분포를 확인하세요.
-            </p>
+      <section className="grid gap-4 lg:grid-cols-[1fr_320px]">
+        <div className="border-border bg-bg-elev rounded-[24px] border p-6 shadow-sm">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 className="text-lg font-extrabold tracking-tight">결과 분석</h1>
+              <p className="text-ink-2 mt-1 text-sm">
+                응답 추이와 객관식(단일) 문항 분포를 확인하세요.
+              </p>
+            </div>
+            <div className="border-border bg-bg-soft text-ink-2 rounded-full border px-4 py-2 text-sm font-extrabold">
+              총 응답 {isLoading ? '…' : `${total}건`}
+            </div>
           </div>
-          <div className="border-border bg-bg-soft text-ink-2 rounded-full border px-4 py-2 text-sm font-extrabold">
-            총 응답 {isLoading ? '…' : `${total}건`}
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-4">
+            {[
+              ['응답', isLoading ? '…' : `${total.toLocaleString()}건`],
+              ['완료율', '78%'],
+              ['평균 응답 시간', '2분 42초'],
+              ['범주', '방금 전'],
+            ].map(([k, v]) => (
+              <div key={k} className="border-border bg-bg rounded-2xl border px-4 py-4">
+                <div className="text-ink-3 text-xs font-extrabold">{k}</div>
+                <div className="mt-2 text-lg font-extrabold tracking-tight">{v}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-border bg-bg-elev rounded-[24px] border p-6 shadow-sm">
+          <div className="text-ink-3 text-xs font-extrabold">알림</div>
+          <div className="mt-3 grid gap-2">
+            {[
+              ['✅', '이번 주 평균 응답률이 좋아요'],
+              ['🧠', '응답자 화면을 단순화하면 완료율이 상승해요'],
+              ['⚠️', '특정 문항에서 이탈이 생길 수 있어요'],
+            ].map(([e, t]) => (
+              <div key={t} className="border-border bg-bg rounded-2xl border p-3 text-xs">
+                <div className="flex items-start gap-2">
+                  <div className="bg-bg-soft grid h-7 w-7 place-items-center rounded-xl">{e}</div>
+                  <div className="text-ink-2 leading-5 font-semibold">{t}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {choiceQuestions.length > 0 && total > 0 && (
-        <section className="border-border bg-bg-elev rounded-2xl border p-6 shadow-sm">
+        <section className="border-border bg-bg-elev rounded-[24px] border p-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-sm font-extrabold tracking-tight">객관식 분포</h2>
             <select
@@ -113,7 +147,7 @@ export default function Page() {
         </section>
       )}
 
-      <section className="border-border bg-bg-elev rounded-2xl border p-6 shadow-sm">
+      <section className="border-border bg-bg-elev rounded-[24px] border p-6 shadow-sm">
         {isLoading ? (
           <div className="text-ink-2 text-sm">불러오는 중…</div>
         ) : total === 0 ? (

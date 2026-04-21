@@ -54,5 +54,8 @@ Thumbs.db
 # Design bundle (원본, 배포 제외)
 design-bundle/
 
+# Local scratch (screenshots, notes)
+tmp/
+
 # Sentry (빌드 시 생성)
 .sentry-native/

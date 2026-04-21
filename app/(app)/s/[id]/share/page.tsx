@@ -53,11 +53,21 @@ export default function Page() {
 
   return (
     <main className="grid gap-4 lg:grid-cols-2">
-      <section className="border-border bg-bg-elev rounded-2xl border p-6 shadow-sm">
-        <h1 className="text-lg font-extrabold tracking-tight">공유</h1>
-        <p className="text-ink-2 mt-1 text-sm">
-          응답자 링크·QR·임베드를 활용하세요. 공개(live)일 때만 /r 링크가 열립니다.
-        </p>
+      <section className="border-border bg-bg-elev rounded-[24px] border p-6 shadow-sm">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-lg font-extrabold tracking-tight">공유 & 배포</h1>
+            <p className="text-ink-2 mt-1 text-sm">
+              공개(live)일 때만 응답자 링크가 열립니다. 링크·QR·임베드를 한 번에 준비하세요.
+            </p>
+          </div>
+          <a
+            href={`/r/${id}`}
+            className="border-accent bg-accent shadow-pop hover:bg-accent-ink hidden rounded-full border px-5 py-2.5 text-sm font-extrabold text-white md:inline-flex"
+          >
+            응답자 화면 미리보기
+          </a>
+        </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div className="border-border bg-bg rounded-xl border px-4 py-3 text-sm sm:col-span-2">
@@ -66,13 +76,13 @@ export default function Page() {
             <div className="mt-3 flex flex-wrap gap-2">
               <button
                 type="button"
-                className="border-border bg-bg-elev hover:bg-bg-soft rounded-full border px-4 py-2 text-sm font-semibold"
+                className="border-accent bg-accent shadow-pop hover:bg-accent-ink rounded-full border px-4 py-2 text-sm font-extrabold text-white"
                 onClick={async () => {
                   await navigator.clipboard.writeText(shareUrl);
                   captureEvent('share_link_copied', { survey_id: id });
                 }}
               >
-                링크 복사
+                복사
               </button>
               {typeof navigator !== 'undefined' && 'share' in navigator && (
                 <button
@@ -97,8 +107,8 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="border-border bg-bg flex flex-col items-center justify-center rounded-xl border p-4">
-            <div className="text-ink-3 text-xs font-semibold">QR 코드</div>
+          <div className="border-border bg-bg flex flex-col items-center justify-center rounded-xl border p-5">
+            <div className="text-ink-3 text-xs font-extrabold">QR 코드</div>
             {qrDataUrl ? (
               <img
                 src={qrDataUrl}
@@ -111,7 +121,7 @@ export default function Page() {
           </div>
 
           <div className="border-border bg-bg rounded-xl border px-4 py-3 text-sm">
-            <div className="text-ink-3 text-xs font-semibold">웹사이트 임베드</div>
+            <div className="text-ink-3 text-xs font-extrabold">임베드</div>
             <textarea
               readOnly
               className="border-border bg-bg-soft mt-2 h-28 w-full resize-none rounded-lg border p-2 font-mono text-[11px] leading-relaxed"
@@ -132,9 +142,9 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="border-border bg-bg-elev rounded-2xl border p-6 shadow-sm">
+      <section className="border-border bg-bg-elev rounded-[24px] border p-6 shadow-sm">
         <h2 className="text-lg font-extrabold tracking-tight">공개 상태</h2>
-        <p className="text-ink-2 mt-1 text-sm">draft ↔ live를 전환합니다.</p>
+        <p className="text-ink-2 mt-1 text-sm">지금부터 누구나 링크로 응답할 수 있게 만들어요.</p>
 
         <div className="border-border bg-bg mt-5 flex items-center justify-between rounded-xl border px-4 py-4">
           <div>
@@ -153,6 +163,25 @@ export default function Page() {
           >
             {survey?.status === 'live' ? '비공개로' : '공개로'}
           </button>
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {[
+            ['🔒', '비밀번호 보호', '비밀번호로 아는 사람만 응답'],
+            ['👥', '응답자 수 제한', '100명까지 응답 가능'],
+            ['⏱️', '응답 기간 설정', '4월 30일까지 수집'],
+            ['🌍', '공개 범위', '링크를 가진 누구나'],
+          ].map(([e, t, d]) => (
+            <div key={t} className="border-border bg-bg rounded-xl border p-4">
+              <div className="flex items-start gap-3">
+                <div className="bg-bg-soft grid h-10 w-10 place-items-center rounded-2xl">{e}</div>
+                <div>
+                  <div className="text-sm font-extrabold tracking-tight">{t}</div>
+                  <div className="text-ink-2 mt-1 text-xs leading-5">{d}</div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </main>

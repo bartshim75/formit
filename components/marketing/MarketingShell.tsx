@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 
-export default function MarketingLayout({ children }: { children: ReactNode }) {
+export function MarketingShell({ children }: { children: ReactNode }) {
   return (
     <div className="bg-bg text-ink min-h-screen">
-      <header className="bg-bg/92 border-border sticky top-0 z-20 border-b backdrop-blur">
-        <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-6 py-4">
+      <header className="bg-bg/80 sticky top-0 z-20 backdrop-blur">
+        <div className="mx-auto flex max-w-[1240px] items-center justify-between px-6 py-5">
           <a href="/" className="flex items-center gap-2">
             <div className="grid h-9 w-9 place-items-center rounded-2xl bg-white shadow-sm">
               <div className="bg-accent h-4 w-4 rounded-sm" />
@@ -15,21 +15,15 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
             </div>
           </a>
 
-          <nav className="flex min-w-0 flex-1 items-center justify-center gap-2 sm:gap-3">
+          <nav className="flex items-center gap-4">
             <a
-              className="border-border bg-bg-elev text-ink-2 hover:bg-bg-soft inline-flex rounded-full border px-4 py-2 text-xs font-extrabold sm:text-sm"
-              href="#features"
-            >
-              기능
-            </a>
-            <a
-              className="border-border bg-bg-elev text-ink-2 hover:bg-bg-soft inline-flex rounded-full border px-4 py-2 text-xs font-extrabold sm:text-sm"
+              className="text-ink-2 hover:text-ink inline-flex text-sm font-extrabold"
               href="/templates"
             >
               템플릿
             </a>
             <a
-              className="border-border bg-bg-elev text-ink-2 hover:bg-bg-soft inline-flex rounded-full border px-4 py-2 text-xs font-extrabold sm:text-sm"
+              className="text-ink-2 hover:text-ink inline-flex text-sm font-extrabold"
               href="/dashboard"
             >
               대시보드
@@ -38,13 +32,15 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
 
           <a
             href="/dashboard"
-            className="border-accent bg-accent shadow-pop hover:bg-accent-ink shrink-0 rounded-full border px-4 py-2 text-xs font-extrabold text-white sm:px-5 sm:py-2.5 sm:text-sm"
+            className="border-accent bg-accent shadow-pop hover:bg-accent-ink rounded-full border px-5 py-2.5 text-sm font-extrabold text-white"
           >
             무료로 시작하기
           </a>
         </div>
       </header>
+
       {children}
+
       <footer className="border-border bg-bg border-t">
         <div className="text-ink-3 mx-auto max-w-[1240px] px-6 py-10 text-xs">
           © {new Date().getFullYear()} Formit. 응답자 경험을 최우선으로 설계합니다.
